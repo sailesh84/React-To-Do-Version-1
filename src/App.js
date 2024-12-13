@@ -1,24 +1,44 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect, useReducer } from "react";
+import { Container } from "reactstrap";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "./App.css";
+import { ToDoContext } from "./Context/ToDoContext"
+import todoReducer from "./Context/Reducers";
+import ToDoForm from "./Components/ToDoForm";
+import ToDoList from "./Components/ToDoList";
 
-function App() {
+
+const App = () => {
+  const [todos, dispatch] = useReducer(todoReducer, []);
+
+  useEffect(() => {
+    const localToDos = localStorage.getItem(todos);
+    // console.log(localStorage);
+
+    if(localToDos){
+      dispatch(JSON.parse(localToDos));
+    }
+  }, []);
+
+
+  useEffect(() => {
+    localStorage.setItem("todos", JSON.stringify(todos));
+    console.log("Component return current value", todos);
+
+    return () => {
+      console.log("Component return previous value", todos);
+    }
+
+  }, [todos]);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <ToDoContext.Provider value={{ todos, dispatch }}>
+      <div className="container">
+        <h1 className="mb-5">ToDo API with Context API</h1>
+        <ToDoForm />
+        <ToDoList />
+      </div>
+    </ToDoContext.Provider>
   );
 }
 
